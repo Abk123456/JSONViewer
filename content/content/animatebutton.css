@@ -1,0 +1,74 @@
+
+
+    #containerbhai {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .itembhai {
+      border: 2px dashed #d4a017;
+      margin: 8px;
+      padding: 15px;
+      border-radius: 10px;
+      width: 120px;
+      text-align: center;
+      font-weight: bold;
+      color: #d4a017;
+      cursor: pointer;
+      transition: transform 0.5s ease, box-shadow 0.5s ease;
+    }
+
+    .btn-primary {
+      background-color: #fff;
+      color: #d4a017;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      border: 2px dashed #d4a017;
+       text-align: center;
+    }
+
+     .btn-primary:hover {
+      background-color: #a09e9917;
+      color: #d4a017;
+    }
+
+#containerbhai a {
+  text-decoration: none;   /* removes underline */
+  color: #d4a017;             /* set your preferred text color */
+}
+    /* Different background colors */
+    /* #itembhai1 { background: #d4a017; }
+    #itembhai2 { background: #d4a017; }
+    #itembhai3 { background: #d4a017; } */
+
+
+    /* Hover effect */
+    .itembhai:hover {
+      transform: scale(1.1) rotate(5deg);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    
+
+    /* Buttons */
+    .controls {
+      margin-top: 20px;
+    }
+    .btn {
+      background: #4a90e2;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .btn:hover {
+      background: #357ab8;
+    }
+ 
