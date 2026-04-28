@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive JSON Viewer</title>
+
+<link rel="stylesheet" type="text/css" href="content/style.css">
+<link rel="stylesheet" type="text/css" href="content/animatebutton.css">
+
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9f9f9; }
+    textarea { width: 100%; height: 150px; padding: 10px; font-family: monospace; }
+    button { margin: 5px; padding: 8px 12px; cursor: pointer; }
+    #viewer { border: 1px solid #ccc; background: #fff; padding: 10px; font-family: monospace; }
+    .line { display: flex; align-items: flex-start; }
+    .line-number { width: 40px; text-align: right; color: #888; margin-right: 10px; user-select: none; }
+    .toggle { cursor: pointer; margin-right: 5px; color: blue; font-weight: bold; user-select: none; }
+    .nested { margin-left: 20px; display: block; } /* expanded by default */
+    .key { color: brown; }
+    .string { color: green; }
+    .number { color: darkorange; }
+    .boolean { color: blue; }
+    .null { color: red; }
+  </style>
+</head>
+<body>
+
+    <section>
+    <div id="containerbhai">
+      <div id="itembhai1" class="itembhai"><a href="E:\Project\Git Project\JSONFormatterSystem\index.html">Interactive JSON Viewer</a></div>
+      <div id="itembhai2" class="itembhai"><a href="E:\Project\Git Project\JSONFormatterSystem\ExcelSheet.html">Excel to JSON</a></div>
+      <div id="itembhai3" class="itembhai"><a href="E:\Project\Git Project\JSONFormatterSystem\onelinejson.html">JSON One-Line Formatter</a></div>
+    </div>
+  </section>
+
+
+<div style="margin-bottom: 20px; margin-left: 10px; margin-right: 10px;">
+    <h2>Interactive JSON Viewer</h2>
+  <textarea id="jsonInput" placeholder="Paste your JSON here..."></textarea><br>
+  <button onclick="renderJSON()" class="btn-primary">Format & Show</button>
+  <button onclick="copyOutput()" class="btn-primary BtnCopy">Copy</button>
+  <button onclick="collapseAll()" class="btn-primary">Collapse All</button>
+  <button onclick="expandAll()" class="btn-primary">Expand All</button>
+  <button onclick="clearInput()" class="btn-primary">Clear</button>
+  <div id="viewer"></div>
+
+</div>
+  
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; <span class="FooterYear"></span> JSON Viewer | Designed by Abkaruddin</p>
+    <p>
+      <a href="#">Privacy Policy</a> | 
+      <a href="#">Terms of Service</a> | 
+      <a href="#">Contact</a>
+    </p>
+  </footer>
+
+
+  <script>
+
+// Set current year in footer
+document.addEventListener("DOMContentLoaded", function() {
+  const yearElement = document.querySelector(".FooterYear");
+  if (yearElement) {
+    yearElement.textContent = new Date().getFullYear();
+  }
+});
+
+
+    let lastParsed = null; // store parsed JSON
+
+    function renderJSON() {
+      const input = document.getElementById("jsonInput").value.trim();
+      const viewer = document.getElementById("viewer");
+      viewer.innerHTML = "";
+      lastParsed = null;
+
+      try {
+        const obj = JSON.parse(input);
+        lastParsed = obj; // save parsed JSON for copy
+        buildTree(obj, viewer, 1);
+      } catch (e) {
+        viewer.innerHTML = "<span style='color:red'>Invalid JSON ❌</span><br>" + e.message;
+      }
+    }
+
+    function buildTree(obj, parent, lineNumber) {
+      if (typeof obj === "object" && obj !== null) {
+        const isArray = Array.isArray(obj);
+        const keys = Object.keys(obj);
+
+        const toggle = document.createElement("span");
+        toggle.textContent = "-"; // expanded by default
+        toggle.className = "toggle";
+        toggle.onclick = function() {
+          if (nested.style.display === "none") {
+            nested.style.display = "block";
+            toggle.textContent = "-";
+          } else {
+            nested.style.display = "none";
+            toggle.textContent = "+";
+          }
+        };
+
+        const line = document.createElement("div");
+        line.className = "line";
+        const num = document.createElement("span");
+        num.className = "line-number";
+        num.textContent = lineNumber++;
+        line.appendChild(num);
+        line.appendChild(toggle);
+
+        const brace = document.createElement("span");
+        brace.textContent = isArray ? "[" : "{";
+        line.appendChild(brace);
+        parent.appendChild(line);
+
+        const nested = document.createElement("div");
+        nested.className = "nested";
+        nested.style.display = "block"; // expanded by default
+        parent.appendChild(nested);
+
+        keys.forEach(key => {
+          const value = obj[key];
+          const childLine = document.createElement("div");
+          childLine.className = "line";
+
+          const num = document.createElement("span");
+          num.className = "line-number";
+          num.textContent = lineNumber++;
+          childLine.appendChild(num);
+
+          const keySpan = document.createElement("span");
+          keySpan.className = "key";
+          keySpan.textContent = `"${key}": `;
+          childLine.appendChild(keySpan);
+
+          if (typeof value === "object" && value !== null) {
+            nested.appendChild(childLine);
+            buildTree(value, nested, lineNumber);
+          } else {
+            const valSpan = document.createElement("span");
+            if (typeof value === "string") valSpan.className = "string";
+            else if (typeof value === "number") valSpan.className = "number";
+            else if (typeof value === "boolean") valSpan.className = "boolean";
+            else if (value === null) valSpan.className = "null";
+            valSpan.textContent = JSON.stringify(value);
+            childLine.appendChild(valSpan);
+            nested.appendChild(childLine);
+          }
+        });
+
+        const closingLine = document.createElement("div");
+        closingLine.className = "line";
+        const closingNum = document.createElement("span");
+        closingNum.className = "line-number";
+        closingNum.textContent = lineNumber++;
+        closingLine.appendChild(closingNum);
+        const closingBrace = document.createElement("span");
+        closingBrace.textContent = isArray ? "]" : "}";
+        closingLine.appendChild(closingBrace);
+        nested.appendChild(closingLine);
+      }
+    }
+
+function copyOutput() {
+  const btnCopy = document.getElementsByClassName("BtnCopy")[0]; // no dot here
+
+  if (lastParsed) {
+    const text = JSON.stringify(lastParsed, null, 2); // clean JSON only
+
+    navigator.clipboard.writeText(text).then(() => {
+      // After 2 seconds, show the copied text on the button
+      setTimeout(() => {
+        btnCopy.innerHTML = "<b>Copied</b>";
+        
+        // Reset back to original after another 2 seconds
+        setTimeout(() => {
+          btnCopy.textContent = "Copy";
+        }, 1000);
+      }, 800);
+    }).catch(err => {
+      console.error("Failed to copy JSON:", err);
+    });
+  } else {
+    console.warn("No valid JSON to copy!");
+  }
+}
+
+
+
+
+  function clearInput() {
+      document.getElementById("jsonInput").value = "";
+       const viewer = document.getElementById("viewer");
+      viewer.innerHTML = "";
+    }
+
+    function collapseAll() {
+      document.querySelectorAll(".nested").forEach(n => n.style.display = "none");
+      document.querySelectorAll(".toggle").forEach(t => t.textContent = "+");
+    }
+
+    function expandAll() {
+      document.querySelectorAll(".nested").forEach(n => n.style.display = "block");
+      document.querySelectorAll(".toggle").forEach(t => t.textContent = "-");
+    }
+  </script>
+
+
+
+</body>
+</html>

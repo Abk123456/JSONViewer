@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JSON One-Line Formatter</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    textarea { width: 100%; height: 150px; }
+    button { margin-top: 10px; padding: 8px 12px; }
+  </style>
+
+<link rel="stylesheet" type="text/css" href="content/style.css">
+<link rel="stylesheet" href="content/animatebutton.css">
+</head>
+<body>
+
+  <section>
+    <div id="containerbhai">
+      <div id="itembhai1" class="itembhai"><a href="E:\Project\Git Project\JSONFormatterSystem\index.html">Interactive JSON Viewer</a></div>
+      <div id="itembhai2" class="itembhai"><a href="E:\Project\Git Project\JSONFormatterSystem\ExcelSheet.html">Excel to JSON</a></div>
+      <div id="itembhai3" class="itembhai"><a href="E:\Project\Git Project\JSONFormatterSystem\onelinejson.html">JSON One-Line Formatter</a></div>
+    </div>
+  </section>
+
+
+<div style="margin-bottom: 20px; margin-left: 10px; margin-right: 10px;">
+    <h2>JSON One-Line Formatter</h2>
+  <textarea id="jsonInput" placeholder="Paste your JSON here..."></textarea>
+  <br>
+  <button onclick="formatJSON()" class="btn-primary" style="margin-bottom: 5px; margin-left: 5px;">Format to One Line</button>
+ 
+  <div style="margin-top: 5px; margin-bottom: 5px; margin-left: 5px;">
+        <button onclick="copyOutput()" class="btn-primary BtnCopy">Copy</button>
+       <button onclick="clearInput()" class="btn-primary">Clear</button>
+
+  </div>
+
+
+
+  <textarea id="output" readonly></textarea>
+
+</div>
+
+    <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; <span class="FooterYear"></span> JSON Viewer | Designed by Abkaruddin</p>
+    <p>
+      <a href="#">Privacy Policy</a> | 
+      <a href="#">Terms of Service</a> | 
+      <a href="#">Contact</a>
+    </p>
+  </footer>
+
+
+
+  <script>
+
+    // Set current year in footer
+    document.addEventListener("DOMContentLoaded", function() {
+      const yearElement = document.querySelector(".FooterYear");
+      if (yearElement) {
+        yearElement.textContent = new Date().getFullYear();
+      }
+    });
+
+    function formatJSON() {
+      const input = document.getElementById("jsonInput").value;
+      const output = document.getElementById("output");
+
+      try {
+        const obj = JSON.parse(input); // validate JSON
+        const oneLine = JSON.stringify(obj); // minified JSON
+        output.value = oneLine; // show in textarea
+      } catch (e) {
+        output.value = "Invalid JSON: " + e.message;
+      }
+    }
+
+
+    
+    function copyOutput() {
+  const btnCopy = document.querySelector(".BtnCopy"); // get the button
+  const output = document.getElementById("output");   // get the <pre> element
+
+  if (output && output.value.trim() !== "") {
+    const text = output.value; // grab whatever is inside <pre>
+
+    navigator.clipboard.writeText(text).then(() => {
+      // After 2 seconds, show "Copied!" on the button
+      setTimeout(() => {
+        btnCopy.textContent = "Copied!";
+
+        // Reset back to "Copy" after another 2 seconds
+        setTimeout(() => {
+          btnCopy.textContent = "Copy";
+        }, 1000);
+      }, 800);
+    }).catch(err => {
+      console.error("Failed to copy text:", err);
+    });
+  } else {
+    console.warn("No text available to copy!");
+  }
+}
+
+
+
+
+
+  function clearInput() {
+      document.getElementById("jsonInput").value = "";
+      document.getElementById("output").value = "";
+    }
+
+  </script>
+</body>
+</html>

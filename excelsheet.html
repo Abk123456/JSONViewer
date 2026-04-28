@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Excel to JSON (Key-Value)</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input { margin-bottom: 10px; }
+    pre { background: #f4f4f4; padding: 10px; border: 1px solid #ccc; white-space: pre-wrap; }
+  </style>
+
+
+  <link rel="stylesheet" type="text/css" href="content/style.css">
+  <link rel="stylesheet" type="text/css" href="content/animatebutton.css">
+</head>
+<body>
+
+    <section>
+    <div id="containerbhai">
+      <div id="itembhai1" class="itembhai"><a href="E:\Project\Git Project\JSONFormatterSystem\index.html">Interactive JSON Viewer</a></div>
+      <div id="itembhai2" class="itembhai"><a href="E:\Project\Git Project\JSONFormatterSystem\ExcelSheet.html">Excel to JSON</a></div>
+      <div id="itembhai3" class="itembhai"><a href="E:\Project\Git Project\JSONFormatterSystem\onelinejson.html">JSON One-Line Formatter</a></div>
+    </div>
+  </section>
+
+ 
+
+  <div style="margin-bottom: 20px; margin-left: 10px; margin-right: 10px;">
+     <h2>Convert Excel to JSON (Key-Value)</h2>
+
+  <label class="file-upload">
+    Upload Excel File
+    <input type="file" id="upload" accept=".xlsx, .xls" />
+  </label>
+
+  <div style="margin-top: 5px;">
+        <button onclick="copyOutput()" class="btn-primary BtnCopy">Copy</button>
+       <button onclick="clearInput()" class="btn-primary">Clear</button>
+
+  </div>
+
+    <pre id="output"></pre>
+</div>
+
+
+
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; <span class="FooterYear"></span> JSON Viewer | Designed by Abkaruddin</p>
+    <p>
+      <a href="#">Privacy Policy</a> | 
+      <a href="#">Terms of Service</a> | 
+      <a href="#">Contact</a>
+    </p>
+  </footer>
+
+
+
+
+  <script>
+
+// Set current year in footer
+document.addEventListener("DOMContentLoaded", function() {
+  const yearElement = document.querySelector(".FooterYear");
+  if (yearElement) {
+    yearElement.textContent = new Date().getFullYear();
+  }
+});
+
+
+
+    document.getElementById('upload').addEventListener('change', handleFile, false);
+
+    function handleFile(event) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        // Get first sheet
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        // Convert to JSON with headers as keys
+        const jsonData = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+
+        // Format JSON
+        document.getElementById('output').textContent = JSON.stringify(jsonData, null, 2);
+         document.getElementById('upload').value = "";
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
+
+
+
+    function copyOutput() {
+  const btnCopy = document.querySelector(".BtnCopy"); // get the button
+  const output = document.getElementById("output");   // get the <pre> element
+
+  if (output && output.textContent.trim() !== "") {
+    const text = output.textContent; // grab whatever is inside <pre>
+
+    navigator.clipboard.writeText(text).then(() => {
+      // After 2 seconds, show "Copied!" on the button
+      setTimeout(() => {
+        btnCopy.textContent = "Copied!";
+
+        // Reset back to "Copy" after another 2 seconds
+        setTimeout(() => {
+          btnCopy.textContent = "Copy";
+        }, 1000);
+      }, 800);
+    }).catch(err => {
+      console.error("Failed to copy text:", err);
+    });
+  } else {
+    console.warn("No text available to copy!");
+  }
+}
+
+
+
+
+
+  function clearInput() {
+      document.getElementById("output").textContent = "";
+    }
+
+
+  </script>
+</body>
+</html>
