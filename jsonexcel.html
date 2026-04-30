@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JSON to Excel</title>
+  <link rel="stylesheet" type="text/css" href="content/style.css">
+  <link rel="stylesheet" type="text/css" href="content/animatebutton.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; }
+    .container { max-width: 900px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    textarea { width: 100%; height: 150px; margin-bottom: 10px; }
+    table { border-collapse: collapse; margin-top: 20px; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #f2f2f2; }
+    .btn-group { margin-top: 10px; }
+    .error { color: red; margin-top: 10px; }
+
+  </style>
+
+  
+
+</head>
+<body>
+
+  <section>
+    <div id="containerbhai">
+      <div id="itembhai1" class="itembhai"><a href="index.html">Interactive JSON Viewer</a></div>
+      <div id="itembhai1" class="itembhai"><a href="jsonexcel.html">Convert JSON to Excel</a></div>
+      <div id="itembhai2" class="itembhai"><a href="excelsheet.html">Excel to JSON</a></div>
+      <div id="itembhai3" class="itembhai"><a href="onelinejson.html">JSON One-Line Formatter</a></div>
+    </div>
+
+  <div class="container">
+    <h2>Convert JSON to Excel</h2>
+    <textarea id="jsonInput" placeholder='Paste JSON here...'></textarea>
+    <div class="btn-group">
+      <button onclick="convertToTable()" class="btn-primary">Convert</button>
+      <button onclick="copyTable()" class="btn-primary BtnCopy">Copy Table</button>
+      <button onclick="downloadExcel()" class="btn-primary">Download Excel</button>
+      <button onclick="clearAll()" class="btn-primary">Clear</button>
+    </div>
+    <div id="errorMsg" class="error"></div>
+    <div id="tableContainer"></div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+        <p>&copy; <span class="FooterYear"></span> <a href="https://www.jsonexcel.online">JSON Viewer</a> | Designed by Abkaruddin | All rights reserved.</p>
+    <p>
+      <a href="privacypolicy.html">Privacy Policy</a> | 
+      <a href="termsandconditions.html">Terms of Service</a> | 
+      <a href="aboutandcontact.html">Contact</a>  |
+      <a href="cookiepolicy.html">Cookie Policy</a>
+    </p>
+  </footer>
+
+
+
+  <script>
+    // Set current year in footer
+    document.addEventListener("DOMContentLoaded", () => {
+      const yearElement = document.querySelector(".FooterYear");
+      if (yearElement) yearElement.textContent = new Date().getFullYear();
+    });
+
+    function convertToTable() {
+      const input = document.getElementById("jsonInput").value;
+      const errorMsg = document.getElementById("errorMsg");
+      errorMsg.textContent = "";
+      let data;
+      try {
+        data = JSON.parse(input);
+      } catch (e) {
+        errorMsg.textContent = "❌ Invalid JSON format!";
+        return;
+      }
+      if (!Array.isArray(data)) {
+        errorMsg.textContent = "❌ JSON must be an array of objects!";
+        return;
+      }
+      const table = document.createElement("table");
+      const headerRow = document.createElement("tr");
+      const keys = Object.keys(data[0]);
+      keys.forEach(key => {
+        const th = document.createElement("th");
+        th.textContent = key;
+        headerRow.appendChild(th);
+      });
+      table.appendChild(headerRow);
+      data.forEach(obj => {
+        const row = document.createElement("tr");
+        keys.forEach(key => {
+  const cell = renderValue(obj[key]);  // use helper for nested arrays/objects
+  row.appendChild(cell);
+});
+        table.appendChild(row);
+      });
+      const container = document.getElementById("tableContainer");
+      container.innerHTML = "";
+      container.appendChild(table);
+    }
+
+    function copyTable() {
+      const table = document.getElementById("tableContainer").innerText;
+      if (table.trim() !== "") {
+        navigator.clipboard.writeText(table).then(() => {
+          const btn = document.querySelector(".BtnCopy");
+          btn.textContent = "Copied!";
+          setTimeout(() => btn.textContent = "Copy Table", 1000);
+        });
+      }
+    }
+
+  function flattenObject(obj, parentKey = "", res = {}) {
+  for (let key in obj) {
+    const newKey = parentKey ? `${parentKey}.${key}` : key;
+    if (typeof obj[key] === "object" && obj[key] !== null && !Array.isArray(obj[key])) {
+      flattenObject(obj[key], newKey, res);
+    } else {
+      res[newKey] = Array.isArray(obj[key]) ? JSON.stringify(obj[key]) : obj[key];
+    }
+  }
+  return res;
+}
+
+function downloadExcel() {
+  const input = document.getElementById("jsonInput").value;
+  let data;
+  try {
+    data = JSON.parse(input);
+  } catch {
+    alert("Invalid JSON!");
+    return;
+  }
+
+  if (!Array.isArray(data)) {
+    alert("Root JSON must be an array of objects!");
+    return;
+  }
+
+  // Flatten each object before exporting
+  const flattenedData = data.map(item => flattenObject(item));
+
+  const worksheet = XLSX.utils.json_to_sheet(flattenedData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "MainData");
+
+  XLSX.writeFile(workbook, "output.xlsx");
+}
+
+
+    function clearAll() {
+      document.getElementById("jsonInput").value = "";
+      document.getElementById("tableContainer").innerHTML = "";
+      document.getElementById("errorMsg").textContent = "";
+    }
+
+
+function renderValue(value) {
+  if (value === null) {
+    const td = document.createElement("td");
+    td.textContent = "null";
+    td.style.color = "gray";
+    return td;
+  }
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+    const td = document.createElement("td");
+    td.textContent = value;
+    return td;
+  }
+  if (Array.isArray(value)) {
+    if (value.length > 0 && typeof value[0] === "object") {
+      // Array of objects → nested table
+      const subTable = document.createElement("table");
+      subTable.style.border = "1px solid #ddd";
+      const keys = Object.keys(value[0]);
+      const headerRow = document.createElement("tr");
+      keys.forEach(k => {
+        const th = document.createElement("th");
+        th.textContent = k;
+        headerRow.appendChild(th);
+      });
+      subTable.appendChild(headerRow);
+      value.forEach(item => {
+        const row = document.createElement("tr");
+        keys.forEach(k => {
+          const td = document.createElement("td");
+          td.textContent = item[k] ?? "—";
+          row.appendChild(td);
+        });
+        subTable.appendChild(row);
+      });
+      const wrapper = document.createElement("td");
+      wrapper.appendChild(subTable);
+      return wrapper;
+    } else {
+      // Array of primitives
+      const td = document.createElement("td");
+      td.textContent = value.join(", ");
+      return td;
+    }
+  }
+  if (typeof value === "object") {
+    // Nested object → stringify or sub-table
+    const subTable = document.createElement("table");
+    subTable.style.border = "1px solid #ddd";
+    for (const [k, v] of Object.entries(value)) {
+      const row = document.createElement("tr");
+      const keyCell = document.createElement("td");
+      keyCell.textContent = k;
+      const valCell = document.createElement("td");
+      valCell.textContent = (v === null ? "null" : typeof v === "object" ? JSON.stringify(v) : v);
+      row.appendChild(keyCell);
+      row.appendChild(valCell);
+      subTable.appendChild(row);
+    }
+    const wrapper = document.createElement("td");
+    wrapper.appendChild(subTable);
+    return wrapper;
+  }
+  const td = document.createElement("td");
+  td.textContent = "—"; // fallback for undefined/missing
+  td.style.color = "red";
+  return td;
+}
+
+  </script>
+  
+</body>
+</html>
